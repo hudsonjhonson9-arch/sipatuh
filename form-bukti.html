@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload Bukti Setoran — SIPATUH</title>
+<link rel="icon" type="image/png" href="Lambang_Kabupaten_Sumba_Barat.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B2E59;--navy-light:#164A7A;--gold:#D4A64F;--sumba-red:#C73B3B;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.08);
+  --border:#E2E8F0;--border-focus:#D4A64F;
+  --text:#1E293B;--text-muted:#64748B;--text-label:#475569;
+  --bg:#F8FAFC;--bg-card:#FFFFFF;
+  --success:#16A34A;--success-bg:#DCFCE7;--success-border:#BBF7D0;
+  --error:#DC2626;--error-bg:#FEF2F2;--error-border:#FECACA;
+  --ref-bg:#EFF6FF;--ref-color:#1D4ED8;--ref-border:#DBEAFE;
+  --transition:180ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(160deg,#F1F5F9 0%,#F8FAFC 100%);
+  display:flex;justify-content:center;
+  padding:32px 16px;
+}
+.card{
+  width:100%;max-width:600px;
+  background:var(--bg-card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  align-self:flex-start;
+}
+.card-header{
+  padding:28px 32px 20px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.card-header img{width:48px;height:48px;border-radius:8px;}
+.card-header h1{font-size:20px;color:var(--navy);margin-top:8px;letter-spacing:1px;font-weight:700;}
+.card-header p{font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.4;}
+.card-body{padding:24px 32px 28px;}
+.section{margin-bottom:24px;}
+.section:last-child{margin-bottom:0;}
+.section-title{
+  font-size:11px;font-weight:700;color:var(--text-muted);
+  letter-spacing:.6px;text-transform:uppercase;
+  margin-bottom:12px;padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-row .full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-size:12px;font-weight:600;color:var(--text-label);letter-spacing:.2px;}
+.form-group .required label::after,.req::after{content:' *';color:var(--sumba-red);}
+.form-group input,.form-group select,.form-group textarea{
+  padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-size:13px;font-family:inherit;outline:none;
+  transition:var(--transition);background:white;color:var(--text);
+  min-height:42px;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  border-color:var(--border-focus);
+  box-shadow:0 0 0 3px rgba(212,166,79,.12);
+}
+.form-group input::placeholder{color:#94A3B8;font-size:12px;}
+.form-group textarea{min-height:80px;resize:vertical;line-height:1.5;}
+.form-group input[type=file]{
+  padding:10px;font-size:12px;border-style:dashed;
+  cursor:pointer;color:var(--text-muted);
+}
+.form-group input[type=file]:hover{border-color:#94A3B8;}
+.form-group .hint{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.ref-section{background:#FAFBFC;border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);margin-bottom:20px;}
+.ref-wrap{display:flex;gap:8px;align-items:stretch;}
+.ref-wrap input{flex:1;min-height:42px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;transition:var(--transition);}
+.ref-wrap input:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(212,166,79,.12);}
+.ref-wrap input::placeholder{color:#94A3B8;font-size:12px;}
+.ref-status{font-size:12px;display:flex;align-items:center;gap:5px;margin-top:6px;font-weight:500;}
+.ref-status.ok{color:var(--success);}
+.ref-status.err{color:var(--error);}
+.ref-status.load{color:var(--text-muted);}
+.ref-info-card{
+  margin-top:10px;padding:12px 14px;
+  background:var(--ref-bg);border:1px solid var(--ref-border);
+  border-radius:8px;display:none;line-height:1.5;
+}
+.ref-info-card .ri-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.ref-info-card .ri-temuan{font-size:13px;font-weight:600;color:var(--text);}
+.ref-info-card .ri-meta{font-size:12px;color:var(--text-muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;}
+.ref-info-card .ri-meta span{display:flex;align-items:center;gap:4px;}
+.ref-info-card .ri-meta .badge{background:white;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600;color:var(--ref-color);border:1px solid var(--ref-border);}
+.btn-submit{
+  width:100%;margin-top:8px;padding:13px;
+  border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,var(--navy),var(--navy-light));
+  color:white;font-weight:600;font-size:14px;letter-spacing:.3px;
+  cursor:pointer;transition:var(--transition);
+  min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-submit:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 4px 12px rgba(11,46,89,.2);}
+.btn-submit:active{transform:translateY(0);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+#msg{
+  margin-top:16px;padding:12px 14px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;display:none;line-height:1.5;
+}
+#msg.ok{display:flex;align-items:center;gap:8px;background:var(--success-bg);color:#166534;border:1px solid var(--success-border);}
+#msg.err{display:flex;align-items:center;gap:8px;background:var(--error-bg);color:#991B1B;border:1px solid var(--error-border);}
+.loading{text-align:center;padding:24px;color:var(--text-muted);font-size:13px;}
+@media(max-width:500px){
+  body{padding:16px 12px;}
+  .card-header{padding:24px 20px 16px;}
+  .card-body{padding:20px;}
+  .form-row{grid-template-columns:1fr;}
+  .ref-section{padding:12px;}
+  .ref-wrap{flex-direction:column;gap:8px;}
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <img src="Lambang_Kabupaten_Sumba_Barat.png" alt="Lambang Sumba Barat">
+    <h1>SIPATUH</h1>
+    <p>Sistem Pemantauan Tindak Lanjut Temuan Hasil Pemeriksaan<br>Inspektorat Kabupaten Sumba Barat</p>
+  </div>
+  <div class="card-body">
+    <div class="section">
+      <div class="section-title">Cari Temuan</div>
+      <div class="ref-section">
+        <div class="form-group">
+          <label>Nomor Referensi Temuan</label>
+          <div class="ref-wrap">
+            <input id="fRef" placeholder="Contoh: PUSKES-001-A7F" oninput="cekRef()" autocomplete="off">
+          </div>
+          <div class="ref-status" id="refStatus"></div>
+        </div>
+        <div class="ref-info-card" id="refInfoBox">
+          <div class="ri-label">Data Temuan</div>
+          <div class="ri-temuan" id="riTemuan"></div>
+          <div class="ri-meta" id="riMeta"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Data Setoran</div>
+      <div class="form-row">
+        <div class="form-group"><label>Instansi <span class="req"></span></label><select id="fOpd"><option value="">Memuat data...</option></select></div>
+        <div class="form-group"><label>Tanggal Setor <span class="req"></span></label><input type="date" id="fTanggal"></div>
+        <div class="full form-group"><label>Uraian Temuan <span class="req"></span></label><textarea id="fUraian" placeholder="Jelaskan temuan secara singkat..."></textarea></div>
+        <div class="form-group"><label>Pelaku Kerugian <span class="req"></span></label><input id="fPelaku" placeholder="Nama pelaku"></div>
+        <div class="form-group"><label>Nama Penyetor</label><input id="fPenyetor" placeholder="Nama penyetor"><span class="hint">Opsional, jika berbeda dengan pelaku</span></div>
+        <div class="form-group"><label>No. HP</label><input id="fHp" type="tel" placeholder="08xxxxxxxxxx"><span class="hint">Opsional</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Nominal &amp; File</div>
+      <div class="form-row">
+        <div class="form-group"><label>Jumlah Temuan (Rp)</label><input type="number" id="fJumlahTemuan" placeholder="0" min="0"></div>
+        <div class="form-group"><label>Jumlah Setoran (Rp)</label><input type="number" id="fJumlahSetoran" placeholder="0" min="0"></div>
+        <div class="full form-group"><label>File Bukti Setoran</label><input type="file" id="fFile" accept=".pdf,image/*"><span class="hint">Format PDF / JPG / PNG. Maksimal 10 MB.</span></div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btnKirim" onclick="kirim()">
+      <i class="icon-send" style="font-style:normal;font-size:16px">&#10148;</i>
+      Kirim Bukti Setoran
+    </button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyfHq4s2Dck1UAVFe4Z5k4BVWjDZHvwZd0ONdzsBFvW7WwjZHoVVpOfVW2YOmU9zx4/exec';
+var temuanTerpilih = null;
+var detilTerpilih = null;
+
+async function init() {
+  try {
+    var res = await fetch(API_URL + '?action=listOpd');
+    var data = await res.json();
+    var sel = document.getElementById('fOpd');
+    sel.innerHTML = '<option value="">Pilih Instansi...</option>';
+    if (Array.isArray(data)) data.forEach(function(o) {
+      sel.innerHTML += '<option value="' + o.id + '">' + o.nama_opd + '</option>';
+    });
+  } catch (e) {
+    document.getElementById('fOpd').innerHTML = '<option value="">Gagal memuat data</option>';
+  }
+}
+init();
+
+async function cekRef() {
+  var ref = document.getElementById('fRef').value.trim();
+  var status = document.getElementById('refStatus');
+  var info = document.getElementById('refInfoBox');
+  if (ref.length < 3) {
+    status.className = 'ref-status'; status.textContent = '';
+    info.style.display = 'none';
+    temuanTerpilih = null; detilTerpilih = null;
+    return;
+  }
+  status.className = 'ref-status load'; status.textContent = 'Memeriksa...';
+  try {
+    var res = await fetch(API_URL + '?action=cariTemuanByRef&ref=' + encodeURIComponent(ref));
+    var data = await res.json();
+    if (data.found) {
+      status.className = 'ref-status ok'; status.textContent = 'Referensi ditemukan';
+      info.style.display = 'block';
+      document.getElementById('riTemuan').textContent = data.temuan.uraian_temuan;
+      document.getElementById('riMeta').innerHTML = ''
+        + '<span>Pelaku: <strong>' + (data.detil.nama || '-') + '</strong></span>'
+        + '<span class="badge">Rp ' + Number(data.detil.jumlah).toLocaleString('id-ID') + '</span>'
+        + '<span>' + (data.temuan.nama_opd || '') + '</span>';
+      temuanTerpilih = data.temuan;
+      detilTerpilih = data.detil;
+      if (data.detil.nama) document.getElementById('fPelaku').value = data.detil.nama;
+      if (data.detil.jumlah) document.getElementById('fJumlahTemuan').value = data.detil.jumlah;
+    } else {
+      status.className = 'ref-status err'; status.textContent = 'Referensi tidak ditemukan';
+      info.style.display = 'none';
+      temuanTerpilih = null; detilTerpilih = null;
+    }
+  } catch(e) {
+    status.className = 'ref-status err'; status.textContent = 'Gagal cek referensi';
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise(function(resolve, reject) {
+    var r = new FileReader();
+    r.onload = function() { resolve(r.result.split(',')[1]); };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function kirim() {
+  var msg = document.getElementById('msg');
+  msg.className = ''; msg.style.display = 'none';
+  var opd_id = document.getElementById('fOpd').value;
+  var uraian = document.getElementById('fUraian').value.trim();
+  var pelaku = document.getElementById('fPelaku').value.trim();
+  if (!opd_id || !uraian || !pelaku) {
+    msg.className = 'err'; msg.textContent = 'Lengkapi instansi, uraian temuan, dan pelaku kerugian.'; return;
+  }
+  var btn = document.getElementById('btnKirim');
+  btn.disabled = true; btn.innerHTML = 'Mengirim...';
+  try {
+    var payload = {
+      opd_id: opd_id,
+      temuan_id: temuanTerpilih ? temuanTerpilih.id : '',
+      detil_temuan_id: detilTerpilih ? detilTerpilih.id : '',
+      uraian_temuan: uraian,
+      nomor_referensi: document.getElementById('fRef').value.trim(),
+      nama_instansi: document.getElementById('fOpd').options[document.getElementById('fOpd').selectedIndex]?.text || '',
+      pelaku_kerugian: pelaku,
+      nama_penyetor: document.getElementById('fPenyetor').value.trim(),
+      no_hp: document.getElementById('fHp').value.trim(),
+      jumlah_temuan: document.getElementById('fJumlahTemuan').value || 0,
+      jumlah_setoran: document.getElementById('fJumlahSetoran').value || 0,
+      tanggal_setor: document.getElementById('fTanggal').value || '',
+    };
+    var fileInput = document.getElementById('fFile');
+    if (fileInput.files.length) {
+      var f = fileInput.files[0];
+      payload.nama_file = f.name;
+      payload.mime_type = f.type;
+      payload.base64_data = await fileToBase64(f);
+    }
+    var res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'submitSetoran', payload: payload }),
+    });
+    var data = await res.json();
+    if (data.success) {
+      msg.className = 'ok'; msg.textContent = 'Bukti setoran berhasil dikirim! Akan diverifikasi oleh admin.';
+      document.getElementById('fUraian').value = '';
+      document.getElementById('fPelaku').value = '';
+      document.getElementById('fPenyetor').value = '';
+      document.getElementById('fHp').value = '';
+      document.getElementById('fJumlahTemuan').value = '';
+      document.getElementById('fJumlahSetoran').value = '';
+      document.getElementById('fRef').value = '';
+      document.getElementById('fTanggal').value = '';
+      document.getElementById('fFile').value = '';
+      document.getElementById('refStatus').className = 'ref-status';
+      document.getElementById('refInfoBox').style.display = 'none';
+      temuanTerpilih = null; detilTerpilih = null;
+    } else {
+      msg.className = 'err'; msg.textContent = data.error || 'Gagal mengirim. Coba lagi.';
+    }
+  } catch(e) {
+    msg.className = 'err'; msg.textContent = 'Gagal terhubung ke server. Cek koneksi internet.';
+  }
+  btn.disabled = false; btn.innerHTML = 'Kirim Bukti Setoran';
+}
+</script>
+</body>
+</html>
