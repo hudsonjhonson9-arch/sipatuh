@@ -543,6 +543,7 @@ const AUTH_ENABLED = true;
 
 let session = JSON.parse(localStorage.getItem('sipatuh_session') || 'null');
 let opdList = [];
+let lhpOptions = [];
 let statusLabel = {
   sesuai: 'Sesuai Rekomendasi',
   belum_sesuai: 'Belum Sesuai',
@@ -774,7 +775,7 @@ async function loadAudit() {
           : '<table class="detil-table"><thead><tr><th>Nama Pelaku</th><th>Ref</th><th>Jumlah (Rp)</th><th>Keterangan</th></tr></thead><tbody>'
             + t.detil.map(d => '<tr><td>' + (d.nama || '-') + '</td><td>' + (d.nomor_referensi || '-') + '</td><td>' + (+d.jumlah || 0).toLocaleString('id-ID') + '</td><td>' + (d.keterangan || '') + '</td></tr>').join('')
             + '</tbody></table>')
-        + '<div class="detil-meta"><span><span class="label">LHP</span> ' + (t.no_lhp || '-') + '</span><span><span class="label">Tahun</span> ' + (t.tahun_pemeriksaan || '-') + '</span></div>'
+        + '<div class="detil-meta"><span><span class="label">LHP</span> ' + (t.no_lhp || t.nama_lhp || '-') + '</span><span><span class="label">Tahun</span> ' + (t.tahun_pemeriksaan || '-') + '</span></div>'
         + '</div></td>'
         + '</tr>';
     }).join('')
@@ -789,14 +790,15 @@ async function renderTambahTemuan() {
   (Array.isArray(temuanData) ? temuanData : []).forEach(t => {
     if (t.lhp_id) lhpMap[t.lhp_id] = { id: t.lhp_id, no_lhp: t.no_lhp || '', nama_lhp: t.nama_lhp || '' };
   });
-  const lhpOptions = Object.values(lhpMap);
+  lhpOptions = Object.values(lhpMap);
 
   el.innerHTML = ''
     + '<div class="form-grid">'
     + '<div class="full form-group"><label>LHP</label>'
-    + '<select id="tfLhp">'
-    + lhpOptions.map(l => '<option value="' + l.id + '">' + (l.no_lhp ? l.no_lhp + ' — ' : '') + l.nama_lhp + '</option>').join('')
-    + '</select></div>'
+    + '<input id="tfLhp" list="tfLhpList" placeholder="Ketik nama LHP, mis: LKPD 2025">'
+    + '<datalist id="tfLhpList">'
+    + lhpOptions.map(l => '<option value="' + (l.no_lhp ? l.no_lhp + ' — ' : '') + l.nama_lhp + '">').join('')
+    + '</datalist></div>'
     + '<div class="full form-group"><label>OPD Penanggung Jawab</label>'
     + '<select id="tfOpd">'
     + opdList.map(o => '<option value="' + o.id + '">' + o.nama_opd + '</option>').join('')
@@ -873,7 +875,9 @@ async function submitTemuanBaru() {
   const msg = document.getElementById('tfMsg');
   msg.className = 'formMsg'; msg.textContent = '';
 
-  const lhp_id = document.getElementById('tfLhp').value;
+  const lhpText = document.getElementById('tfLhp').value.trim();
+  const lhpMatch = lhpOptions.find(l => l.nama_lhp === lhpText || (l.no_lhp && (l.no_lhp + ' — ' + l.nama_lhp) === lhpText));
+  const lhp_id = lhpMatch ? lhpMatch.id : '';
   const asal_opd = document.getElementById('tfOpd').value;
   const uraian_temuan = document.getElementById('tfUraian').value.trim();
   const jenis_temuan = document.querySelector('input[name="tfJenis"]:checked').value;
@@ -899,7 +903,7 @@ async function submitTemuanBaru() {
 
   msg.textContent = 'Menyimpan...';
   const res = await apiPost('createTemuan', {
-    lhp_id, asal_opd, uraian_temuan, jenis_temuan, kategori_keuangan,
+    lhp_id, nama_lhp: lhpText, asal_opd, uraian_temuan, jenis_temuan, kategori_keuangan,
     nilai_temuan: detil.reduce((s, d) => s + d.jumlah, 0),
     detil,
     uraian_rekomendasi, nilai_rekomendasi, target_penyelesaian,

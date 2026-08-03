@@ -487,14 +487,33 @@ function getRiwayatBukti(session) {
 // CREATE + BATCH IMPORT TEMUAN
 // ============================================================
 
+function resolveLhpId(payload) {
+  if (payload.lhp_id) return payload.lhp_id;
+  if (!payload.nama_lhp) return '';
+  const rows = sheetToObjects('LHP');
+  const found = rows.find(r => String(r.nama_lhp || '').trim().toLowerCase() === String(payload.nama_lhp).trim().toLowerCase());
+  if (found) return found.id;
+  const id = Utilities.getUuid();
+  appendRowObject('LHP', {
+    id: id,
+    no_lhp: payload.no_lhp || '',
+    nama_lhp: payload.nama_lhp,
+    tahun_pemeriksaan: payload.tahun_pemeriksaan || '',
+    entitas: payload.entitas || '',
+    created_at: new Date(),
+  });
+  return id;
+}
+
 function createTemuan(payload, session) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const temuanId = Utilities.getUuid();
+    const lhp_id = resolveLhpId(payload);
     appendRowObject('Temuan', {
       id: temuanId,
-      lhp_id: payload.lhp_id,
+      lhp_id,
       uraian_temuan: payload.uraian_temuan,
       nilai_temuan: payload.nilai_temuan || 0,
       asal_opd: payload.asal_opd,
