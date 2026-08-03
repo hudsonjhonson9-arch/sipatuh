@@ -550,21 +550,33 @@ let statusLabel = {
   tidak_dapat_ditindaklanjuti: 'Tidak Dapat DTL',
 };
 
+async function fetchJson(url, opts) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(url, opts);
+      const text = await res.text();
+      if (res.ok) return JSON.parse(text);
+    } catch (e) {
+      // network or parse error -> retry
+    }
+    if (attempt < 3) await new Promise(r => setTimeout(r, 700 * attempt));
+  }
+  return null;
+}
+
 async function apiGet(action, params = {}) {
   const url = new URL(API_URL);
   url.searchParams.set('action', action);
   url.searchParams.set('token', session?.token || '');
   Object.entries(params).forEach(([k, v]) => v && url.searchParams.set(k, v));
-  const res = await fetch(url);
-  return res.json();
+  return (await fetchJson(url)) || [];
 }
 
 async function apiPost(action, payload = {}) {
-  const res = await fetch(API_URL, {
+  return (await fetchJson(API_URL, {
     method: 'POST',
     body: JSON.stringify({ action, token: session?.token, payload }),
-  });
-  return res.json();
+  })) || {};
 }
 
 /* ---------------- LOGIN / LOGOUT ---------------- */
@@ -601,7 +613,7 @@ function doLogout() {
   document.getElementById('loginScreen').style.display = 'flex';
 }
 
-function enterApp() {
+async function enterApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = '';
   document.getElementById('userName').textContent = session.user.nama;
@@ -620,7 +632,7 @@ function enterApp() {
     if (im) im.style.display = 'none';
   }
   loadDashboardStats();
-  loadOpdList();
+  await loadOpdList();
 
   if (session.user.role === 'opd') {
     document.getElementById('filterOpd').style.display = 'none'; // dikunci ke OPD sendiri di server
@@ -644,14 +656,19 @@ function showPanel(name, btn) {
 
 /* ---------------- DASHBOARD STATS ---------------- */
 async function loadDashboardStats() {
-  const [temuan, opd, progres] = await Promise.all([
-    apiGet('listTemuan', {}),
-    apiGet('listOpd'),
-    apiGet('progressKabupaten'),
-  ]);
-  document.getElementById('statTotalTemuan').textContent = (Array.isArray(temuan) ? temuan.length : 0);
-  var p = progres && progres.persentase_kabupaten != null ? progres.persentase_kabupaten : 0;
-  document.getElementById('statKepatuhan').textContent = p + '%';
+  try {
+    const [temuan, opd, progres] = await Promise.all([
+      apiGet('listTemuan', {}),
+      apiGet('listOpd'),
+      apiGet('progressKabupaten'),
+    ]);
+    document.getElementById('statTotalTemuan').textContent = (Array.isArray(temuan) ? temuan.length : 0);
+    var p = progres && progres.persentase_kabupaten != null ? progres.persentase_kabupaten : 0;
+    document.getElementById('statKepatuhan').textContent = p + '%';
+  } catch (e) {
+    document.getElementById('statTotalTemuan').textContent = '0';
+    document.getElementById('statKepatuhan').textContent = '0%';
+  }
 }
 
 async function loadOpdList() {
@@ -1847,7 +1864,7 @@ window.switchPanduan = switchPanduan;
 if (!AUTH_ENABLED) {
   session = { token: '', user: { nama: 'Tanpa Login', role: 'opd', opd_id: '' } };
   enterApp();
-} else if (session?.token) {
+} else if (session?.token && session?.user) {
   enterApp();
 }
 </script>
