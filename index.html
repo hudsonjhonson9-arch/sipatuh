@@ -477,7 +477,7 @@ footer{margin-top:40px;background:var(--navy);color:white;text-align:center;padd
           <select id="filterOpd"><option value="">Semua OPD</option></select>
           <select id="filterJenis">
             <option value="">Semua Jenis</option>
-            <option value="administratif">Administratif</option>
+            <option value="administratif">Administrasi</option>
             <option value="keuangan">Keuangan</option>
           </select>
           <select id="filterKategori">
@@ -727,11 +727,11 @@ async function loadAudit() {
   const statusLabel = { sesuai: 'Sesuai', belum_sesuai: 'Belum Sesuai', belum_ditindaklanjuti: 'Belum Ditindaklanjuti', tidak_dapat_ditindaklanjuti: 'Tidak Dapat DTL' };
 
   el.className = '';
-  el.innerHTML = '<div class="audit-container"><table id="auditTable"><thead><tr><th>#</th><th>Instansi</th><th>Uraian Temuan</th><th>Rekomendasi</th><th>Target</th><th>Jenis</th><th>Kategori</th><th>Jumlah (Rp)</th></tr></thead><tbody>'
+  el.innerHTML = '<div class="audit-container"><table id="auditTable"><thead><tr><th>#</th><th>Instansi</th><th>Uraian Temuan</th><th>Rekomendasi</th><th>Jenis</th><th>Kategori</th><th>Jumlah (Rp)</th></tr></thead><tbody>'
     + data.map((t, i) => {
       const jenisLabel = t.jenis_temuan === 'keuangan'
         ? '<span class="badge-keuangan">KEUANGAN</span>'
-        : '<span class="badge-administratif">ADMINISTRATIF</span>';
+        : '<span class="badge-administratif">ADMINISTRASI</span>';
       const detilCount = t.detil ? t.detil.length : 0;
       const rekomCount = t.rekomendasi ? t.rekomendasi.length : 0;
       const totalNilai = t.detil ? t.detil.reduce((s, d) => s + (+d.jumlah || 0), 0) : 0;
@@ -744,13 +744,12 @@ async function loadAudit() {
         + '<td class="opd-cell">' + opdName(t.asal_opd) + '</td>'
         + '<td class="uraian-cell">' + t.uraian_temuan + '</td>'
         + '<td class="rekom-cell">' + (rekomUtama ? '<span class="status-pill" style="font-size:10px">' + (statusLabel[rekomUtama.status] || 'belum_ditindaklanjuti') + '</span> ' + rekomUtama.uraian_rekomendasi.substring(0, 60) + (rekomUtama.uraian_rekomendasi.length > 60 ? '...' : '') : '-') + '</td>'
-        + '<td class="target-cell">' + (rekomUtama && rekomUtama.target_penyelesaian ? rekomUtama.target_penyelesaian : '-') + '</td>'
         + '<td>' + jenisLabel + '</td>'
         + '<td><input class="kategori-input" value="' + kategoriValue.replace(/"/g, '&quot;') + '" placeholder="ketik" onchange="updateKategori(\'' + t.id + '\', this.value)" onclick="event.stopPropagation()"></td>'
         + '<td class="jumlah-cell">' + jumlahTampil + '</td>'
         + '</tr>'
         + '<tr class="detil-row" id="detilRow-' + t.id + '" style="display:none">'
-        + '<td colspan="8"><div class="detil-inner">'
+        + '<td colspan="7"><div class="detil-inner">'
         + (rekomCount ? '<div style="margin-bottom:10px"><strong style="font-size:13px;color:var(--navy)">Rekomendasi</strong>'
           + t.rekomendasi.map(r => '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><div>' + (r.uraian_rekomendasi || '-') + '</div><div style="display:flex;gap:12px;margin-top:4px;font-size:11px;color:var(--text-muted)"><span>Nilai: Rp ' + (+r.nilai_rekomendasi || 0).toLocaleString('id-ID') + '</span><span>Status: <span class="status-pill" style="font-size:10px;padding:1px 6px">' + (statusLabel[r.status] || r.status || 'belum_ditindaklanjuti') + '</span></span></div></div>').join('')
           + '</div>' : '')
@@ -790,7 +789,7 @@ async function renderTambahTemuan() {
     + '<div class="full form-group">'
     + '<label>Jenis Temuan</label>'
     + '<div style="display:flex;gap:16px;padding-top:4px">'
-    + '<label style="font-weight:400;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="tfJenis" value="administratif" checked onchange="toggleJenisTemuan()"> Administratif</label>'
+    + '<label style="font-weight:400;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="tfJenis" value="administratif" checked onchange="toggleJenisTemuan()"> Administrasi</label>'
     + '<label style="font-weight:400;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="tfJenis" value="keuangan" onchange="toggleJenisTemuan()"> Keuangan</label>'
     + '</div></div>'
     + '<div class="full form-group" id="tfKategoriWrap" style="display:none">'
@@ -1035,7 +1034,7 @@ function renderImportPreview(sheets) {
         + '<td>' + (i + 1) + '</td>'
         + '<td style="max-width:200px;white-space:normal">' + t.uraian.slice(0, 80) + '</td>'
         + '<td><select class="import-opd" style="width:100%;min-width:130px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:white">' + opdOptions.replace('value="' + defaultOpd + '"', 'value="' + defaultOpd + '" selected') + '</select></td>'
-        + '<td><select class="import-jenis" onchange="toggleImportJenis(this)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:white"><option value="keuangan" ' + (t.jenis === 'keuangan' ? 'selected' : '') + '>Keuangan</option><option value="administratif" ' + (t.jenis === 'administratif' ? 'selected' : '') + '>Administratif</option></select></td>'
+        + '<td><select class="import-jenis" onchange="toggleImportJenis(this)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:white"><option value="keuangan" ' + (t.jenis === 'keuangan' ? 'selected' : '') + '>Keuangan</option><option value="administratif" ' + (t.jenis === 'administratif' ? 'selected' : '') + '>Administrasi</option></select></td>'
         + '<td class="import-kategori">' + (t.jenis === 'keuangan'
           ? '<select class="import-kategori-select" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:white"><option value="perjadin" ' + (t.kategori === 'perjadin' ? 'selected' : '') + '>Perjadin</option><option value="honor" ' + (t.kategori === 'honor' ? 'selected' : '') + '>Honor</option><option value="tdk_menginap" ' + (t.kategori === 'tdk_menginap' ? 'selected' : '') + '>Tidak Menginap</option><option value="bukti_tidak_sesuai" ' + (t.kategori === 'bukti_tidak_sesuai' ? 'selected' : '') + '>Bukti Tidak Sesuai</option></select>'
           : '-') + '</td>'
@@ -1776,7 +1775,7 @@ function renderPanduan() {
     <button class="active" onclick="switchPanduan('pdf',this)">Panduan Teknis</button>
     <button onclick="switchPanduan('video',this)">Video Tutorial</button>
   </div>
-  <iframe id="panduanPdf" src="https://drive.google.com/file/d/1McJVhBDcrDmig6CAocaJwIHrKU9LA3di/preview" height="700" allow="autoplay"></iframe>
+  <iframe id="panduanPdf" src="https://drive.google.com/file/d/1pNVui3TLxSPu1Xu0PMDnYsE6jIb0_j2r/preview" height="700" allow="autoplay"></iframe>
   <iframe id="panduanVideo" src="https://drive.google.com/file/d/12jZ-O1Jd4g_tzVkPyy9pQoFTmP_HycnS/preview" height="600" allow="autoplay" style="display:none"></iframe>
 </div>
 `;
