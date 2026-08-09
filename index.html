@@ -127,6 +127,7 @@ body::after{content:'';position:fixed;bottom:-80px;left:-80px;width:200px;height
 .section-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--border),transparent);}
 
 /* ============ STATS ============ */
+.status-menunggu_verifikasi{background:var(--warn-bg);color:var(--warn);}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
 .stat{
   background:white;padding:22px 24px;border-radius:var(--radius);
@@ -742,7 +743,7 @@ async function loadAudit() {
   if (data.error) { el.className = 'empty'; el.textContent = data.error; return; }
   if (!data.length) { el.className = 'empty'; el.textContent = 'Tidak ada temuan sesuai filter.'; return; }
 
-  const statusLabel = { sesuai: 'Sesuai', belum_sesuai: 'Belum Sesuai', belum_ditindaklanjuti: 'Belum Ditindaklanjuti', tidak_dapat_ditindaklanjuti: 'Tidak Dapat DTL' };
+  const statusLabel = { sesuai: 'Sesuai', belum_sesuai: 'Belum Sesuai', belum_ditindaklanjuti: 'Belum Ditindaklanjuti', tidak_dapat_ditindaklanjuti: 'Tidak Dapat DTL', menunggu_verifikasi: 'Menunggu Verifikasi' };
 
   el.className = '';
   el.innerHTML = '<div class="audit-container"><table id="auditTable"><thead><tr><th>#</th><th>Instansi</th><th>Uraian Temuan</th><th>Rekomendasi</th><th>Jenis</th><th>Kategori</th><th>Jumlah (Rp)</th></tr></thead><tbody>'
