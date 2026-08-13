@@ -665,11 +665,15 @@ async function loadDashboardStats() {
       apiGet('progressKabupaten'),
     ]);
     document.getElementById('statTotalTemuan').textContent = (Array.isArray(temuan) ? temuan.length : 0);
-    var p = progres && progres.persentase_kabupaten != null ? progres.persentase_kabupaten : 0;
-    document.getElementById('statKepatuhan').textContent = p + '%';
+    
+    // Ubah baris ini untuk menetapkan nilai statis 80%
+    document.getElementById('statKepatuhan').textContent = '80%'; 
+    
   } catch (e) {
     document.getElementById('statTotalTemuan').textContent = '0';
-    document.getElementById('statKepatuhan').textContent = '0%';
+    
+    // Ubah juga pada bagian catch jika terjadi error API
+    document.getElementById('statKepatuhan').textContent = '80%'; 
   }
 }
 
